@@ -1,0 +1,10 @@
+*.log
+.DS_Store
+.idea/
+vendor/
+node_modules/
+*.swp
+*.swo
+*~
+.env
+
