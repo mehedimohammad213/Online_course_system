@@ -1,3 +1,4 @@
+-- Create database if not exists
 CREATE DATABASE IF NOT EXISTS online_course_db;
 USE online_course_db;
 
@@ -55,7 +56,32 @@ CREATE TABLE IF NOT EXISTS notices (
     FOREIGN KEY (course_id) REFERENCES courses(course_id) ON DELETE CASCADE
 );
 
--- Insert default admin user (password: admin123)
+-- Insert 5 sample data entries
+
+-- 1. Admin user
 INSERT INTO users (name, email, password, role, status)
-VALUES ('Admin', 'admin@learnplus.com', 'admin123', 'admin', 'approved')
+VALUES ('Admin User', 'admin@learnplus.com', 'admin123', 'admin', 'approved')
 ON DUPLICATE KEY UPDATE name=name;
+
+-- 2. Student user
+INSERT INTO users (name, email, password, role, status)
+VALUES ('John Student', 'john.student@example.com', 'student123', 'student', 'approved')
+ON DUPLICATE KEY UPDATE name=name;
+
+-- 3. Instructor user
+INSERT INTO users (name, email, password, role, status)
+VALUES ('Dr. Sarah Instructor', 'sarah.instructor@example.com', 'instructor123', 'instructor', 'approved')
+ON DUPLICATE KEY UPDATE name=name;
+
+-- 4. Course (assuming instructor_id will be set after instructor is created)
+SET @instructor_id = (SELECT user_id FROM users WHERE email = 'sarah.instructor@example.com' LIMIT 1);
+INSERT INTO courses (course_title, description, instructor_id, status)
+VALUES ('Introduction to Web Development', 'Learn HTML, CSS, and JavaScript fundamentals for building modern websites.', @instructor_id, 'active')
+ON DUPLICATE KEY UPDATE course_title=course_title;
+
+-- 5. Enrollment request (student enrolling in course)
+SET @student_id = (SELECT user_id FROM users WHERE email = 'john.student@example.com' LIMIT 1);
+SET @course_id = (SELECT course_id FROM courses WHERE course_title = 'Introduction to Web Development' LIMIT 1);
+INSERT INTO enrollment_requests (student_id, course_id, request_status)
+VALUES (@student_id, @course_id, 'approved')
+ON DUPLICATE KEY UPDATE request_status='approved';
