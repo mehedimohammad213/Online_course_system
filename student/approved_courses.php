@@ -9,29 +9,41 @@ if ($_SESSION['role'] != 'student') {
 
 $student_id = $_SESSION['user_id'];
 ?>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Approved Courses</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h2>My Approved Courses</h2>
 
-<h2>My Approved Courses</h2>
+        <?php
+        $sql = "SELECT c.course_id, c.course_title, c.description
+                FROM enrollment_requests er
+                JOIN courses c ON er.course_id = c.course_id
+                WHERE er.student_id = $student_id
+                AND er.request_status = 'approved'
+                ORDER BY c.course_title";
 
-<?php
-$sql = "SELECT c.course_id, c.course_title, c.description
-        FROM enrollment_requests er
-        JOIN courses c ON er.course_id = c.course_id
-        WHERE er.student_id = $student_id
-        AND er.request_status = 'approved'
-        ORDER BY c.course_title";
+        $result = mysqli_query($conn, $sql);
 
-$result = mysqli_query($conn, $sql);
+        if (mysqli_num_rows($result) == 0) {
+            echo "<p>No approved courses found.</p>";
+        } else {
+            while ($row = mysqli_fetch_assoc($result)) {
+                echo "<div style='margin: 20px 0; padding: 15px; background: #f9f9f9; border-radius: 5px;'>";
+                echo "<h3>".$row['course_title']."</h3>";
+                echo "<p>".$row['description']."</p>";
+                echo "</div>";
+            }
+        }
+        ?>
 
-if (mysqli_num_rows($result) == 0) {
-    echo "No approved courses found.";
-} else {
-    while ($row = mysqli_fetch_assoc($result)) {
-        echo "<b>".$row['course_title']."</b><br>";
-        echo $row['description']."<br>";
-        echo "<hr>";
-    }
-}
-?>
-
-<br>
-<a href="dashboard.php">Back to Dashboard</a>
+        <br>
+        <a href="dashboard.php">Back to Dashboard</a>
+    </div>
+</body>
+</html>

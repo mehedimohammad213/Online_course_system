@@ -4,17 +4,44 @@ include("../config/db.php");
 
 if ($_SESSION['role'] != 'admin') {
     header("Location: ../auth/login.php");
+    exit();
 }
 ?>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pending Student Requests</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Pending Student Requests</h2>
 
-<h2>Pending Student Requests</h2>
+        <?php
+        $result = mysqli_query($conn, "SELECT * FROM users WHERE role='student' AND status='pending' ORDER BY created_at DESC");
 
-<?php
-$result = mysqli_query($conn, "SELECT * FROM users WHERE role='student' AND status='pending'");
+        if (mysqli_num_rows($result) == 0) {
+            echo "<p>No pending student requests.</p>";
+        } else {
+            echo "<table>";
+            echo "<tr><th>Name</th><th>Email</th><th>Action</th></tr>";
+            while ($row = mysqli_fetch_assoc($result)) {
+                echo "<tr>";
+                echo "<td>".$row['name']."</td>";
+                echo "<td>".$row['email']."</td>";
+                echo "<td>";
+                echo "<a href='approve.php?id=".$row['user_id']."'>Approve</a> | ";
+                echo "<a href='reject_student.php?id=".$row['user_id']."'>Reject</a>";
+                echo "</td>";
+                echo "</tr>";
+            }
+            echo "</table>";
+        }
+        ?>
 
-while ($row = mysqli_fetch_assoc($result)) {
-    echo $row['name'] . " - " . $row['email'];
-    echo " <a href='approve.php?id=".$row['user_id']."'>Approve</a> | ";
-    echo "<a href='reject_student.php?id=".$row['user_id']."'>Reject</a><br><br>";
-}
-?>
+        <br>
+        <a href="dashboard.php">Back to Dashboard</a>
+    </div>
+</body>
+</html>

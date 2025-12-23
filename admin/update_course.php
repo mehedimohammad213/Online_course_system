@@ -9,24 +9,52 @@ if ($_SESSION['role'] != 'admin') {
 
 $id = $_GET['id'];
 
-if (isset($_POST['update'])) {
-    $title = $_POST['title'];
-    $desc = $_POST['description'];
+// Get current course data
+$course = mysqli_fetch_assoc(mysqli_query($conn,
+    "SELECT * FROM courses WHERE course_id=$id"
+));
 
-    mysqli_query($conn,
+if (isset($_POST['update'])) {
+    $title = mysqli_real_escape_string($conn, $_POST['title']);
+    $desc = mysqli_real_escape_string($conn, $_POST['description']);
+
+    if (mysqli_query($conn,
         "UPDATE courses SET course_title='$title', description='$desc'
          WHERE course_id=$id"
-    );
-    echo "Course Updated";
+    )) {
+        echo "<div class='success'>Course Updated Successfully</div><br>";
+        // Refresh course data
+        $course = mysqli_fetch_assoc(mysqli_query($conn,
+            "SELECT * FROM courses WHERE course_id=$id"
+        ));
+    } else {
+        echo "<div class='error'>Error: " . mysqli_error($conn) . "</div><br>";
+    }
 }
 ?>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Update Course</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Update Course</h2>
 
-<form method="post">
-    New Title:<br>
-    <input type="text" name="title"><br><br>
+        <form method="post">
+            Course Title:<br>
+            <input type="text" name="title" value="<?php echo htmlspecialchars($course['course_title']); ?>" required><br><br>
 
-    New Description:<br>
-    <textarea name="description"></textarea><br><br>
+            Description:<br>
+            <textarea name="description" rows="5" required><?php echo htmlspecialchars($course['description']); ?></textarea><br><br>
 
-    <input type="submit" name="update" value="Update">
-</form>
+            <input type="submit" name="update" value="Update Course">
+        </form>
+
+        <br>
+        <a href="view_courses.php">Back to Courses</a>
+    </div>
+</body>
+</html>

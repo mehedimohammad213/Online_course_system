@@ -4,34 +4,60 @@ include("../config/db.php");
 
 if ($_SESSION['role'] != 'instructor') {
     header("Location: ../auth/login.php");
+    exit();
 }
 
+$instructor_id = $_SESSION['user_id'];
 $course_id = $_GET['id'];
-?>
 
-<h2>Upload Course Material</h2>
+// Check if instructor is assigned to this course
+$check = mysqli_query($conn,
+    "SELECT * FROM courses WHERE course_id=$course_id AND instructor_id=$instructor_id"
+);
 
-<form method="post" enctype="multipart/form-data">
-    Title: <br>
-    <input type="text" name="title"><br><br>
+if (mysqli_num_rows($check) == 0) {
+    echo "You are not assigned to this course.";
+    exit();
+}
 
-    File: <br>
-    <input type="file" name="file"><br><br>
-
-    <input type="submit" name="upload" value="Upload">
-</form>
-
-<?php
 if (isset($_POST['upload'])) {
     $title = $_POST['title'];
     $file_name = $_FILES['file']['name'];
     $tmp = $_FILES['file']['tmp_name'];
 
-    move_uploaded_file($tmp, "../uploads/".$file_name);
-
-    mysqli_query($conn, "INSERT INTO materials (course_id, title, file_path)
-                         VALUES ($course_id, '$title', '$file_name')");
-
-    echo "Material Uploaded";
+    if ($file_name) {
+        move_uploaded_file($tmp, "../uploads/".$file_name);
+        mysqli_query($conn, "INSERT INTO materials (course_id, title, file_path)
+                             VALUES ($course_id, '$title', '$file_name')");
+        echo "<div class='success'>Material Uploaded Successfully</div>";
+    } else {
+        echo "<div class='error'>Please select a file</div>";
+    }
 }
 ?>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload Course Material</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Upload Course Material</h2>
+
+        <form method="post" enctype="multipart/form-data">
+            Title: <br>
+            <input type="text" name="title" required><br><br>
+
+            File: <br>
+            <input type="file" name="file" required><br><br>
+
+            <input type="submit" name="upload" value="Upload">
+        </form>
+
+        <br>
+        <a href="assigned_courses.php">Back to Assigned Courses</a>
+    </div>
+</body>
+</html>

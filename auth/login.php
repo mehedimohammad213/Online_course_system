@@ -2,20 +2,22 @@
 <html>
 <head>
     <title>Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body>
+    <div class="container">
+        <h2>Login</h2>
 
-<h2>Login</h2>
+        <form method="post" action="">
+            Email: <br>
+            <input type="email" name="email" required><br><br>
 
-<form method="post" action="">
-    Email: <br>
-    <input type="email" name="email" required><br><br>
+            Password: <br>
+            <input type="password" name="password" required><br><br>
 
-    Password: <br>
-    <input type="password" name="password" required><br><br>
-
-    <input type="submit" name="login" value="Login">
-</form>
+            <input type="submit" name="login" value="Login">
+        </form>
 
 <?php
 include("../config/db.php");
@@ -42,10 +44,13 @@ if (isset($_POST['login'])) {
             header("Location: ../instructor/dashboard.php");
         }
     } else {
-        echo "Invalid login";
+        echo "<div class='error'>Invalid login</div>";
     }
 }
 ?>
 
+        <br>
+        <a href="../index.php">Back to Home</a>
+    </div>
 </body>
 </html>
