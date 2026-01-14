@@ -176,11 +176,13 @@ cd /path/to/project
 Edit `config/db.php` with your database credentials:
 ```php
 $servername = "127.0.0.1";
-$username = "root";
-$password = "";  // Your MySQL password
+$username = "course_user"; // Default user created by AI setup
+$password = "course_pass"; // Default password created by AI setup
 $dbname = "online_course_db";
 $port = 3306;
 ```
+
+> **Note**: If you are using your own credentials, please update this file accordingly.
 
 ### Step 3: Setup Database
 Run the setup script to create tables and insert sample data:
@@ -276,8 +278,9 @@ The setup script creates the following test accounts:
 ### Current Implementation
 - ✅ Session-based authentication
 - ✅ Role-based access control
-- ✅ SQL injection protection (partial - using mysqli_real_escape_string)
-- ✅ File upload directory isolation
+- ✅ SQL injection protection (Comprehensive `mysqli_real_escape_string` usage)
+- ✅ File upload directory isolation & Type/Size validation
+- ✅ Input validation for all forms (Client-side & Server-side)
 
 ### ⚠️ Security Recommendations for Production
 
@@ -348,7 +351,7 @@ The setup script creates the following test accounts:
 
 1. **Password Storage**: Passwords stored in plain text (should use hashing)
 2. **SQL Injection Risk**: Some queries use string concatenation
-3. **File Upload**: No file type/size validation
+3. **File Upload**: Limit 10MB, restricted to PDF/DOC/TXT/Images
 4. **Error Handling**: Limited error handling and logging
 5. **Email Functionality**: No email notifications for approvals/enrollments
 6. **Search Functionality**: No search feature for courses
@@ -362,8 +365,7 @@ The setup script creates the following test accounts:
 ### High Priority
 - [ ] Implement password hashing
 - [ ] Migrate to prepared statements
-- [ ] Add input validation and sanitization
-- [ ] Implement file upload security
+- [ ] Implement file upload security (Advanced scanning)
 - [ ] Add email notification system
 
 ### Medium Priority
