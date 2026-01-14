@@ -23,7 +23,7 @@
             <?php endforeach; ?>
         <?php endif; ?>
 
-        <form method="post" action="/auth/instructor_register">
+        <form id="instructorRegistrationForm" method="post" action="/auth/instructor_register">
             Name:<br>
             <input type="text" name="name" required pattern="[A-Za-z\s]+" title="Name should only contain letters and spaces"><br><br>
 
@@ -35,6 +35,12 @@
 
             <input type="submit" name="register" value="Register">
         </form>
+
+        <?php if (isset($success)): ?>
+            <script>
+                document.getElementById('instructorRegistrationForm').reset();
+            </script>
+        <?php endif; ?>
 
         <br>
         <a href="/">Back to Home</a>
