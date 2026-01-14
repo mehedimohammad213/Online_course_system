@@ -49,12 +49,16 @@ if ($_SESSION['role'] != 'admin') {
             $course_id = $_POST['course_id'];
             $instructor_id = $_POST['instructor_id'];
 
-            if (mysqli_query($conn, "UPDATE courses
-                                     SET instructor_id=$instructor_id
-                                     WHERE course_id=$course_id")) {
-                echo "<div class='success'>Instructor Assigned Successfully</div>";
+            if (empty($course_id) || empty($instructor_id) || !is_numeric($course_id) || !is_numeric($instructor_id)) {
+                echo "<div class='error'>Please select both a course and an instructor.</div>";
             } else {
-                echo "<div class='error'>Error: " . mysqli_error($conn) . "</div>";
+                if (mysqli_query($conn, "UPDATE courses
+                                         SET instructor_id=$instructor_id
+                                         WHERE course_id=$course_id")) {
+                    echo "<div class='success'>Instructor Assigned Successfully</div>";
+                } else {
+                    echo "<div class='error'>Error: " . mysqli_error($conn) . "</div>";
+                }
             }
         }
         ?>

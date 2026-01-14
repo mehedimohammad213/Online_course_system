@@ -21,15 +21,21 @@ if (mysqli_num_rows($check) == 0) {
 }
 
 if (isset($_POST['upload'])) {
-    $title = $_POST['title'];
-    $content = $_POST['content'];
+    $title = mysqli_real_escape_string($conn, trim($_POST['title']));
+    $content = mysqli_real_escape_string($conn, trim($_POST['content']));
 
-    mysqli_query($conn,
-        "INSERT INTO notices (course_id, title, content)
-         VALUES ($course_id, '$title', '$content')"
-    );
-
-    echo "Notice Uploaded Successfully<br><br>";
+    if (empty($title) || empty($content)) {
+        echo "<div class='error'>Title and Content are required.</div><br>";
+    } else {
+        if (mysqli_query($conn,
+            "INSERT INTO notices (course_id, title, content)
+             VALUES ($course_id, '$title', '$content')"
+        )) {
+            echo "<div class='success'>Notice Uploaded Successfully</div><br><br>";
+        } else {
+            echo "<div class='error'>Error: " . mysqli_error($conn) . "</div><br>";
+        }
+    }
 }
 ?>
 

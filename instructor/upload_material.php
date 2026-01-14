@@ -21,17 +21,31 @@ if (mysqli_num_rows($check) == 0) {
 }
 
 if (isset($_POST['upload'])) {
-    $title = $_POST['title'];
+    $title = mysqli_real_escape_string($conn, trim($_POST['title']));
     $file_name = $_FILES['file']['name'];
+    $file_size = $_FILES['file']['size'];
     $tmp = $_FILES['file']['tmp_name'];
 
-    if ($file_name) {
-        move_uploaded_file($tmp, "../uploads/".$file_name);
-        mysqli_query($conn, "INSERT INTO materials (course_id, title, file_path)
-                             VALUES ($course_id, '$title', '$file_name')");
-        echo "<div class='success'>Material Uploaded Successfully</div>";
+    $allowed_extensions = ['pdf', 'doc', 'docx', 'txt', 'jpg', 'jpeg', 'png'];
+    $file_ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
+
+    if (empty($title)) {
+        echo "<div class='error'>Title is required.</div>";
+    } elseif (!$file_name) {
+        echo "<div class='error'>Please select a file.</div>";
+    } elseif (!in_array($file_ext, $allowed_extensions)) {
+        echo "<div class='error'>Invalid file type. Allowed: " . implode(', ', $allowed_extensions) . "</div>";
+    } elseif ($file_size > 10 * 1024 * 1024) { // 10 MB
+        echo "<div class='error'>File size exceeds 10MB limit.</div>";
     } else {
-        echo "<div class='error'>Please select a file</div>";
+        $new_file_name = time() . "_" . $file_name; // Unique filename
+        if (move_uploaded_file($tmp, "../uploads/" . $new_file_name)) {
+            mysqli_query($conn, "INSERT INTO materials (course_id, title, file_path)
+                                 VALUES ($course_id, '$title', '$new_file_name')");
+            echo "<div class='success'>Material Uploaded Successfully</div>";
+        } else {
+            echo "<div class='error'>Error uploading file.</div>";
+        }
     }
 }
 ?>

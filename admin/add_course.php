@@ -30,16 +30,20 @@ if ($_SESSION['role'] != 'admin') {
 
         <?php
         if (isset($_POST['add'])) {
-            $title = mysqli_real_escape_string($conn, $_POST['title']);
-            $description = mysqli_real_escape_string($conn, $_POST['description']);
+            $title = mysqli_real_escape_string($conn, trim($_POST['title']));
+            $description = mysqli_real_escape_string($conn, trim($_POST['description']));
 
-            if (mysqli_query($conn,
-                "INSERT INTO courses (course_title, description, status)
-                 VALUES ('$title', '$description', 'active')"
-            )) {
-                echo "<div class='success'>Course Added Successfully</div>";
+            if (empty($title) || empty($description)) {
+                echo "<div class='error'>All fields are required.</div>";
             } else {
-                echo "<div class='error'>Error: " . mysqli_error($conn) . "</div>";
+                if (mysqli_query($conn,
+                    "INSERT INTO courses (course_title, description, status)
+                     VALUES ('$title', '$description', 'active')"
+                )) {
+                    echo "<div class='success'>Course Added Successfully</div>";
+                } else {
+                    echo "<div class='error'>Error: " . mysqli_error($conn) . "</div>";
+                }
             }
         }
         ?>

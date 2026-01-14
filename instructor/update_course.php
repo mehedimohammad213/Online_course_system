@@ -21,16 +21,20 @@ if (mysqli_num_rows($check) == 0) {
 }
 
 if (isset($_POST['update'])) {
-    $title = mysqli_real_escape_string($conn, $_POST['title']);
-    $desc = mysqli_real_escape_string($conn, $_POST['description']);
+    $title = mysqli_real_escape_string($conn, trim($_POST['title']));
+    $desc = mysqli_real_escape_string($conn, trim($_POST['description']));
 
-    if (mysqli_query($conn,
-        "UPDATE courses SET course_title='$title', description='$desc'
-         WHERE course_id=$course_id AND instructor_id=$instructor_id"
-    )) {
-        echo "<div class='success'>Course Updated Successfully</div><br>";
+    if (empty($title) || empty($desc)) {
+        echo "<div class='error'>All fields are required.</div><br>";
     } else {
-        echo "<div class='error'>Error: " . mysqli_error($conn) . "</div><br>";
+        if (mysqli_query($conn,
+            "UPDATE courses SET course_title='$title', description='$desc'
+             WHERE course_id=$course_id AND instructor_id=$instructor_id"
+        )) {
+            echo "<div class='success'>Course Updated Successfully</div><br>";
+        } else {
+            echo "<div class='error'>Error: " . mysqli_error($conn) . "</div><br>";
+        }
     }
 }
 

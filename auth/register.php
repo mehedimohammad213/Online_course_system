@@ -11,13 +11,13 @@
 
         <form method="post">
             Name: <br>
-            <input type="text" name="name" required><br><br>
+            <input type="text" name="name" required pattern="[A-Za-z\s]+" title="Name should only contain letters and spaces"><br><br>
 
             Email: <br>
             <input type="email" name="email" required><br><br>
 
             Password: <br>
-            <input type="password" name="password" required><br><br>
+            <input type="password" name="password" required pattern=".{8,}" title="Password must be at least 8 characters long"><br><br>
 
             <input type="submit" name="register" value="Register">
         </form>
@@ -26,17 +26,40 @@
         include("../config/db.php");
 
         if (isset($_POST['register'])) {
-            $name = $_POST['name'];
-            $email = $_POST['email'];
+            $name = mysqli_real_escape_string($conn, trim($_POST['name']));
+            $email = mysqli_real_escape_string($conn, trim($_POST['email']));
             $password = $_POST['password'];
 
-            $sql = "INSERT INTO users (name, email, password, role, status)
-                    VALUES ('$name', '$email', '$password', 'student', 'pending')";
+            // Server-side Validation
+            $errors = [];
 
-            if (mysqli_query($conn, $sql)) {
-                echo "<div class='success'>Registration successful. Wait for admin approval.</div>";
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $errors[] = "Invalid email format.";
+            }
+
+            if (strlen($password) < 8) {
+                $errors[] = "Password must be at least 8 characters long.";
+            }
+
+            // Check if email already exists
+            $check_email = mysqli_query($conn, "SELECT email FROM users WHERE email='$email'");
+            if (mysqli_num_rows($check_email) > 0) {
+                $errors[] = "Email already registered.";
+            }
+
+            if (empty($errors)) {
+                $sql = "INSERT INTO users (name, email, password, role, status)
+                        VALUES ('$name', '$email', '$password', 'student', 'pending')";
+
+                if (mysqli_query($conn, $sql)) {
+                    echo "<div class='success'>Registration successful. Wait for admin approval.</div>";
+                } else {
+                    echo "<div class='error'>Error: " . mysqli_error($conn) . "</div>";
+                }
             } else {
-                echo "<div class='error'>Error: " . mysqli_error($conn) . "</div>";
+                foreach ($errors as $error) {
+                    echo "<div class='error'>$error</div><br>";
+                }
             }
         }
         ?>

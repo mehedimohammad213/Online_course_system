@@ -15,20 +15,24 @@ $course = mysqli_fetch_assoc(mysqli_query($conn,
 ));
 
 if (isset($_POST['update'])) {
-    $title = mysqli_real_escape_string($conn, $_POST['title']);
-    $desc = mysqli_real_escape_string($conn, $_POST['description']);
+    $title = mysqli_real_escape_string($conn, trim($_POST['title']));
+    $desc = mysqli_real_escape_string($conn, trim($_POST['description']));
 
-    if (mysqli_query($conn,
-        "UPDATE courses SET course_title='$title', description='$desc'
-         WHERE course_id=$id"
-    )) {
+    if (empty($title) || empty($desc)) {
+        echo "<div class='error'>All fields are required.</div><br>";
+    } else {
+        if (mysqli_query($conn,
+            "UPDATE courses SET course_title='$title', description='$desc'
+             WHERE course_id=$id"
+        )) {
         echo "<div class='success'>Course Updated Successfully</div><br>";
         // Refresh course data
-        $course = mysqli_fetch_assoc(mysqli_query($conn,
-            "SELECT * FROM courses WHERE course_id=$id"
-        ));
-    } else {
-        echo "<div class='error'>Error: " . mysqli_error($conn) . "</div><br>";
+            $course = mysqli_fetch_assoc(mysqli_query($conn,
+                "SELECT * FROM courses WHERE course_id=$id"
+            ));
+        } else {
+            echo "<div class='error'>Error: " . mysqli_error($conn) . "</div><br>";
+        }
     }
 }
 ?>

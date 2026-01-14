@@ -23,8 +23,8 @@
 include("../config/db.php");
 
 if (isset($_POST['login'])) {
-    $email = $_POST['email'];
-    $password = $_POST['password'];
+    $email = mysqli_real_escape_string($conn, trim($_POST['email']));
+    $password = mysqli_real_escape_string($conn, $_POST['password']);
 
     $sql = "SELECT * FROM users WHERE email='$email' AND password='$password' AND status='approved'";
     $result = mysqli_query($conn, $sql);
